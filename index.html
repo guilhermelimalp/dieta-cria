@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0908" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Templo de Ferro" />
+<title>Recomposição — Templo de Ferro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0908;
+    --ink-2:#120f0b;
+    --panel:#16120c;
+    --panel-2:#1c170f;
+    --gold:#E8B923;
+    --gold-deep:#C9961C;
+    --gold-hi:#F6D667;
+    --ember:#E0531F;
+    --bone:#F1EADB;
+    --ash:#928A7B;
+    --ash-2:#6A6357;
+    --line:rgba(232,185,35,.16);
+    --line-soft:rgba(241,234,219,.07);
+    --display:'Bebas Neue',Impact,sans-serif;
+    --body:'Inter',system-ui,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;overflow-x:clip}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--bone);
+    font-family:var(--body);
+    font-size:16px;
+    line-height:1.55;
+    overflow-x:clip;
+    overflow-wrap:break-word;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* warm radial glow + vignette */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(120% 80% at 50% -10%, rgba(232,185,35,.10), transparent 55%),
+      radial-gradient(100% 60% at 50% 120%, rgba(224,83,31,.06), transparent 60%),
+      linear-gradient(180deg,#0c0a07 0%, var(--ink) 40%, #070605 100%);
+  }
+  /* film grain */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 22px}
+
+  a{color:inherit}
+  ::selection{background:var(--gold);color:#1a1304}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:relative;z-index:2;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(10,9,8,.9),rgba(10,9,8,.4));
+  }
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:16px;padding-bottom:16px}
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--display);font-size:24px;letter-spacing:1.5px;color:var(--bone)}
+  .brand .barbell{width:34px;height:14px;flex:none}
+  .brand b{color:var(--gold)}
+  .topbar .since{font-family:var(--mono);font-size:11px;color:var(--ash-2);letter-spacing:.5px}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;padding:54px 0 30px}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:4px;text-transform:uppercase;
+    color:var(--gold-deep);display:flex;align-items:center;gap:12px;margin-bottom:14px
+  }
+  .eyebrow::before{content:"";width:34px;height:1px;background:var(--gold-deep)}
+  .hero h1{
+    font-family:var(--display);font-weight:400;margin:0;
+    font-size:clamp(68px,17vw,148px);line-height:.84;letter-spacing:1px;
+    background:linear-gradient(176deg,var(--gold-hi),var(--gold) 42%,var(--gold-deep) 78%,#7d5c12);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 2px 0 rgba(0,0,0,.25);
+  }
+  .hero h1 .blk{display:block;color:var(--bone);background:none;-webkit-text-fill-color:var(--bone);
+    font-size:.28em;letter-spacing:6px;margin-top:8px}
+  .hero .lede{max-width:46ch;color:var(--ash);font-size:15px;margin:18px 0 0}
+  .hero .lede strong{color:var(--bone);font-weight:600}
+
+  /* tale of the tape */
+  .tape{
+    margin-top:30px;border:1px solid var(--line);border-radius:4px;
+    background:linear-gradient(180deg,var(--panel),#0e0b07);
+    display:grid;grid-template-columns:repeat(4,1fr);overflow:hidden;
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.9), inset 0 1px 0 rgba(246,214,103,.08);
+  }
+  .tape .cell{padding:18px 16px;border-right:1px solid var(--line-soft);position:relative}
+  .tape .cell:last-child{border-right:0}
+  .tape .k{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ash-2);margin-bottom:7px}
+  .tape .v{font-family:var(--display);font-size:40px;line-height:.9;color:var(--bone)}
+  .tape .v small{font-size:.4em;color:var(--gold);letter-spacing:1px;margin-left:3px}
+  .tape .v.gold{color:var(--gold)}
+
+  .goal{
+    margin-top:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--ash)
+  }
+  .goal .arrow{color:var(--gold)}
+  .goal b{color:var(--bone);font-weight:700}
+  .goal .meta{
+    color:var(--gold);border:1px dashed var(--gold-deep);border-radius:99px;
+    padding:5px 13px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700
+  }
+
+  /* ---------- weekly split strip ---------- */
+  .split{margin:34px 0 6px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:18px 0}
+  .split .lbl{font-family:var(--mono);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--ash-2);margin-bottom:13px}
+  .days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+  .day{
+    border:1px solid var(--line-soft);border-radius:3px;padding:11px 6px;text-align:center;
+    background:var(--ink-2)
+  }
+  .day .d{font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--ash-2);margin-bottom:5px}
+  .day .w{font-family:var(--display);font-size:22px;letter-spacing:.5px;color:var(--bone);line-height:.9}
+  .day.work{border-color:var(--line);background:linear-gradient(180deg,var(--panel),var(--ink-2))}
+  .day.work .w{color:var(--gold)}
+  .day.off .w{color:var(--ash-2)}
+
+  /* ---------- tabs ---------- */
+  .tabs{
+    position:sticky;top:0;z-index:40;margin:30px 0 0;
+    background:linear-gradient(180deg,var(--ink) 70%,rgba(10,9,8,0));
+    padding:14px 0 16px;
+  }
+  .tabs-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:2px}
+  .tabs-scroll::-webkit-scrollbar{display:none}
+  .tab{
+    flex:none;cursor:pointer;border:1px solid var(--line);background:var(--ink-2);
+    color:var(--ash);font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1.5px;
+    text-transform:uppercase;padding:11px 16px;border-radius:3px;white-space:nowrap;
+    transition:color .18s, border-color .18s, background .18s, transform .12s;
+  }
+  .tab .kc{color:var(--ash-2);margin-left:8px;font-weight:500}
+  .tab:hover{color:var(--bone);border-color:var(--gold-deep)}
+  .tab[aria-selected="true"]{
+    color:#1a1304;background:linear-gradient(180deg,var(--gold-hi),var(--gold) 60%,var(--gold-deep));
+    border-color:var(--gold-hi);box-shadow:0 6px 22px -10px rgba(232,185,35,.7)
+  }
+  .tab[aria-selected="true"] .kc{color:#3a2c07}
+
+  /* ---------- panels ---------- */
+  .panel{padding:26px 0 10px;animation:fade .4s ease both}
+  .panel[hidden]{display:none}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .phead{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:6px}
+  .phead h2{font-family:var(--display);font-weight:400;font-size:clamp(34px,7vw,52px);line-height:.9;margin:0;letter-spacing:.5px;color:var(--bone)}
+  .phead h2 em{font-style:normal;color:var(--gold)}
+  .phead .kcal-big{font-family:var(--display);font-size:46px;color:var(--gold);line-height:.8;text-align:right}
+  .phead .kcal-big small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ash-2);text-align:right}
+  .pnote{color:var(--ash);font-size:14px;max-width:70ch;margin:12px 0 6px;border-left:2px solid var(--gold-deep);padding-left:14px}
+  .pnote strong{color:var(--bone)}
+
+  /* macro band */
+  .macroband{
+    display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 8px
+  }
+  .mchip{
+    border:1px solid var(--line-soft);border-radius:3px;padding:9px 13px;background:var(--ink-2);
+    display:flex;align-items:baseline;gap:8px
+  }
+  .mchip b{font-family:var(--display);font-size:24px;color:var(--gold);line-height:.8}
+  .mchip span{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ash)}
+
+  /* ---------- meal timeline ---------- */
+  .timeline{position:relative;margin-top:24px;padding-left:6px}
+  .timeline::before{content:"";position:absolute;left:62px;top:10px;bottom:14px;width:1px;background:linear-gradient(var(--line),transparent)}
+  @media(max-width:680px){.timeline::before{left:48px}}
+
+  .meal{position:relative;display:grid;grid-template-columns:74px 1fr;gap:16px;padding:0 0 24px}
+  @media(max-width:680px){.meal{grid-template-columns:56px 1fr;gap:12px}}
+  .meal__time{font-family:var(--mono);font-weight:700;font-size:14px;color:var(--gold);padding-top:14px;letter-spacing:-.5px;position:relative}
+  .meal__time::after{content:"";position:absolute;right:-13px;top:18px;width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px var(--ink),0 0 14px rgba(232,185,35,.5)}
+  @media(max-width:680px){.meal__time::after{right:-7px}}
+
+  .card{
+    border:1px solid var(--line-soft);border-radius:5px;background:linear-gradient(180deg,var(--panel),var(--ink-2));
+    padding:16px 18px;transition:border-color .18s, transform .18s, box-shadow .18s
+  }
+  .card:hover{border-color:var(--line);transform:translateY(-2px);box-shadow:0 16px 40px -28px rgba(0,0,0,.9)}
+  .card.star{border-color:var(--gold-deep);background:linear-gradient(180deg,#1d1709,var(--ink-2))}
+  .card.supp{background:linear-gradient(180deg,#191307,var(--ink-2))}
+
+  .card__head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .card__head h4{margin:0;font-family:var(--display);font-weight:400;font-size:26px;letter-spacing:.5px;color:var(--bone);line-height:.9}
+  .tag{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-deep);border:1px solid var(--line);border-radius:99px;padding:3px 9px}
+  .tag.ember{color:var(--ember);border-color:rgba(224,83,31,.4)}
+
+  .items{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+  .items li{display:flex;justify-content:space-between;gap:14px;font-size:14px;border-bottom:1px dotted var(--line-soft);padding-bottom:7px}
+  .items li:last-child{border-bottom:0;padding-bottom:0}
+  .items .food{color:var(--bone)}
+  .items .food .up{color:var(--gold)}
+  .items .qty{font-family:var(--mono);font-size:12px;color:var(--ash);white-space:nowrap;text-align:right}
+
+  .macros{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;padding-top:13px;border-top:1px solid var(--line-soft)}
+  .pill{font-family:var(--mono);font-size:11px;letter-spacing:.5px;color:var(--ash);background:var(--ink);border:1px solid var(--line-soft);border-radius:3px;padding:5px 9px}
+  .pill b{color:var(--bone);font-weight:700}
+  .pill.kc{color:#1a1304;background:linear-gradient(180deg,var(--gold-hi),var(--gold-deep));border-color:var(--gold-hi)}
+  .pill.kc b{color:#1a1304}
+
+  /* ---------- supplements / rules cards ---------- */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:8px}
+  @media(max-width:680px){.grid{grid-template-columns:1fr}}
+  .info{border:1px solid var(--line-soft);border-radius:5px;background:linear-gradient(180deg,var(--panel),var(--ink-2));padding:18px 18px}
+  .info h3{margin:0 0 4px;font-family:var(--display);font-weight:400;font-size:27px;letter-spacing:.5px;color:var(--gold);line-height:.9}
+  .info .sub{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ash-2);margin-bottom:11px}
+  .info p{margin:0;font-size:14px;color:var(--ash)}
+  .info p strong{color:var(--bone)}
+  .info.warn{border-color:rgba(224,83,31,.4)}
+  .info.warn h3{color:var(--ember)}
+
+  .rules{display:grid;gap:11px;margin-top:8px;counter-reset:r}
+  .rule{display:grid;grid-template-columns:46px 1fr;gap:14px;align-items:start;border:1px solid var(--line-soft);border-radius:5px;background:var(--ink-2);padding:15px 16px}
+  .rule::before{counter-increment:r;content:counter(r,decimal-leading-zero);font-family:var(--display);font-size:34px;color:var(--gold-deep);line-height:.8}
+  .rule p{margin:0;font-size:14px;color:var(--ash)}
+  .rule p strong{color:var(--bone)}
+
+  /* substitution table */
+  .subs{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
+  .subs th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);padding:12px 14px;width:120px;vertical-align:top;border-bottom:1px solid var(--line-soft);background:var(--ink-2)}
+  .subs td{color:var(--bone);padding:12px 14px;border-bottom:1px solid var(--line-soft)}
+
+  /* expectations */
+  .exp{display:grid;gap:0;margin-top:8px;border:1px solid var(--line-soft);border-radius:5px;overflow:hidden}
+  .exp .row{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:14px 18px;border-bottom:1px solid var(--line-soft);background:var(--ink-2)}
+  .exp .row:last-child{border-bottom:0}
+  .exp .when{font-family:var(--mono);font-size:12px;color:var(--gold);letter-spacing:.5px;white-space:nowrap}
+  .exp .what{color:var(--bone);font-size:14px;text-align:right}
+
+  .section-title{font-family:var(--display);font-weight:400;font-size:32px;letter-spacing:.5px;color:var(--bone);margin:34px 0 4px}
+  .section-title em{font-style:normal;color:var(--gold)}
+
+  /* footer */
+  footer{margin-top:46px;border-top:1px solid var(--line);padding:26px 0 60px;text-align:center}
+  footer .mark{font-family:var(--display);font-size:22px;letter-spacing:1px;color:var(--ash)}
+  footer .mark b{color:var(--gold)}
+  footer .fine{font-family:var(--mono);font-size:11px;color:var(--ash-2);letter-spacing:1px;margin-top:8px}
+
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:3px}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+  }
+  .subs{table-layout:fixed}
+  .subs td{word-break:break-word}
+
+  @media(max-width:680px){
+    .tape{grid-template-columns:repeat(2,1fr)}
+    .tape .cell:nth-child(2){border-right:0}
+    .tape .cell:nth-child(1),.tape .cell:nth-child(2){border-bottom:1px solid var(--line-soft)}
+    .phead .kcal-big{font-size:38px}
+    .wrap{padding:0 18px}
+    .hero h1 .blk{letter-spacing:3px;font-size:.24em}
+    .eyebrow{letter-spacing:2.5px}
+    .subs th{width:96px;padding:11px 10px}
+    .subs td{padding:11px 10px}
+    .goal{font-size:11px;gap:10px}
+  }
+  @media(max-width:380px){
+    .brand{font-size:21px;gap:8px}
+    .tab{padding:10px 13px}
+    .mchip b{font-size:21px}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <svg class="barbell" viewBox="0 0 48 20" fill="none" aria-hidden="true">
+        <rect x="2" y="3" width="4" height="14" rx="1" fill="#E8B923"/>
+        <rect x="7" y="6" width="3" height="8" rx="1" fill="#C9961C"/>
+        <rect x="10" y="9" width="28" height="2" rx="1" fill="#E8B923"/>
+        <rect x="38" y="6" width="3" height="8" rx="1" fill="#C9961C"/>
+        <rect x="42" y="3" width="4" height="14" rx="1" fill="#E8B923"/>
+      </svg>
+      <span>TEMPLO&nbsp;<b>DE FERRO</b></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="eyebrow">Plano de recomposição</p>
+    <h1>RECOMP<span class="blk">PROTEÍNA ANTES DE TUDO</span></h1>
+    <p class="lede">O plano completo, organizado por <strong>horário de treino</strong>. Escolhe o protocolo do dia, bate os macros, descansa. <strong>Constância &gt; perfeição.</strong></p>
+
+    <div class="tape" role="group" aria-label="Estado atual">
+      <div class="cell"><div class="k">Peso atual</div><div class="v gold">65<small>kg</small></div></div>
+      <div class="cell"><div class="k">Altura</div><div class="v">1,71<small>m</small></div></div>
+      <div class="cell"><div class="k">Gordura</div><div class="v">24<small>%</small></div></div>
+      <div class="cell"><div class="k">Biotipo</div><div class="v" style="font-size:30px">ECTO</div></div>
+    </div>
+
+    <div class="goal">
+      <span><b>155g</b> proteína / dia</span>
+      <span class="arrow">———▶</span>
+      <span class="meta">Meta: 70kg · V-taper</span>
+    </div>
+  </section>
+
+  <!-- WEEKLY SPLIT -->
+  <section class="split">
+    <div class="lbl">Divisão da semana</div>
+    <div class="days">
+      <div class="day work"><div class="d">SEG</div><div class="w">PUSH</div></div>
+      <div class="day work"><div class="d">TER</div><div class="w">PULL</div></div>
+      <div class="day work"><div class="d">QUA</div><div class="w">LEGS</div></div>
+      <div class="day off"><div class="d">QUI</div><div class="w">OFF</div></div>
+      <div class="day work"><div class="d">SEX</div><div class="w">UPPER</div></div>
+      <div class="day work"><div class="d">SÁB</div><div class="w">LOWER</div></div>
+      <div class="day off"><div class="d">DOM</div><div class="w">OFF</div></div>
+    </div>
+  </section>
+
+  <!-- TABS -->
+  <nav class="tabs" aria-label="Protocolos">
+    <div class="tabs-scroll" role="tablist" id="tablist"></div>
+  </nav>
+
+  <div id="panels"></div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="mark">TEMPLO&nbsp;<b>DE FERRO</b></div>
+    <div class="fine">Disciplina vence motivação · feito pra ser consultado todo dia</div>
+  </div>
+</footer>
+
+<script>
+/* ====================== DADOS ====================== */
+const up = s => s.replace(/↑|↓/g, m => `<span class="up">${m}</span>`);
+
+const protocols = [
+  {
+    id:"p18", tab:"Treino 18h", kcal:"2.050",
+    title:["Protocolo ","padrão"], note:"Treino às <strong>18h</strong>. Refeição pré-treino às 16h30, pós até 40 min após o último exercício. A base de todos os outros protocolos.",
+    macros:[["155","g ptn"],["~215","g carb"],["~51","g gord"],["5","g creat."],["3L+","água"]],
+    meals:[
+      {time:"06h30",name:"Café da manhã",tag:"acordar",items:[["Ovos mexidos","2 un"],["Pão integral 36%","1 fatia · 25g"],["Pasta de amendoim","15g"],["Café preto","s/ açúcar"]],m:{kc:"~360",ptn:"22",carb:"22",gord:"20"}},
+      {time:"12h00",name:"Almoço",tag:"principal",items:[["Arroz branco cozido","150g"],["Feijão","100g"],["Frango grelhado / carne magra","180g"],["Salada + fio de azeite","à vontade"]],m:{kc:"~540",ptn:"43",carb:"65",gord:"8"}},
+      {time:"16h30",name:"Pré-treino · refeição",tag:"energia",items:[["Banana média","1 un · 100g"],["Whey protein","1 scoop · 30g"],["Aveia em pó","30g"],["Água ou leite desnatado","200ml"]],m:{kc:"~380",ptn:"28",carb:"55",gord:"5"}},
+      {time:"17h45",name:"Pré-treino · suplemento",tag:"15 min antes",items:[["Pré-treino (sua marca)","1–2 scoops"],["Creatina monohidratada","5g"]],m:null},
+      {time:"19h30",name:"Pós-treino",tag:"até 40 min",items:[["Whey protein","1 scoop · 30g"],["Banana ou maçã","1 un"]],m:{kc:"~230",ptn:"24",carb:"27",gord:null}},
+      {time:"21h00",name:"Jantar",tag:"principal",items:[["Arroz branco cozido","120g"],["Ovos inteiros","3 un"],["Frango ou atum","100g"],["Legumes refogados","150g"]],m:{kc:"~540",ptn:"38",carb:"46",gord:"16"}}
+    ]
+  },
+  {
+    id:"p13", tab:"Treino 13h", kcal:"2.050",
+    title:["Treino ","cedo"], note:"Pré-treino alimentar vai pras <strong>11h</strong>. O almoço desloca pro pós-treino (~14h30) como refeição de recuperação. <strong>Total do dia idêntico</strong> ao padrão.",
+    macros:[["155","g ptn"],["~215","g carb"],["~51","g gord"],["5","g creat."],["3L+","água"]],
+    meals:[
+      {time:"06h30",name:"Café da manhã",tag:"leve",items:[["Ovos mexidos","2 un"],["Pão integral + pasta de amendoim","1 fatia + 15g"],["Café preto","s/ açúcar"]],m:{kc:"~360",ptn:"22",carb:null,gord:null}},
+      {time:"11h00",name:"Pré-treino · refeição",tag:"2h antes",items:[["Banana média","1 un · 100g"],["Whey protein","1 scoop · 30g"],["Aveia em pó","30g"],["Água ou leite desnatado","200ml"]],m:{kc:"~380",ptn:"28",carb:"55",gord:null}},
+      {time:"12h30",name:"Pré-treino · suplemento",tag:"30 min antes",items:[["Pré-treino (sua marca)","1–2 scoops"],["Creatina monohidratada","5g"]],m:null},
+      {time:"14h30",name:"Pós-treino · almoço",tag:"recuperação",items:[["Arroz branco cozido","150g"],["Feijão","100g"],["Frango grelhado / carne magra","180g"],["Salada + fio de azeite","à vontade"]],m:{kc:"~540",ptn:"43",carb:"65",gord:null}},
+      {time:"18h00",name:"Lanche da tarde",tag:"complemento",items:[["Whey protein","1 scoop · 30g"],["Maçã ou banana","1 un"]],m:{kc:"~230",ptn:"24",carb:null,gord:null}},
+      {time:"21h00",name:"Jantar",tag:"principal",items:[["Arroz branco cozido","120g"],["Ovos inteiros","3 un"],["Frango ou atum","100g"],["Legumes refogados","150g"]],m:{kc:"~540",ptn:"38",carb:"46",gord:null}}
+    ]
+  },
+  {
+    id:"p23", tab:"Sexta 23h", kcal:"1.950",
+    title:["Upper ","noturno"], note:"Lógica invertida: carboidrato concentrado no almoço, jantar leve às 19h30, pós-treino com proteína de digestão lenta. Assim você <strong>não chega pesado</strong> na academia às 23h.",
+    macros:[["155","g ptn"],["concentr.","carb"],["~45","g gord"],["5","g creat."],["3L+","água"]],
+    meals:[
+      {time:"06h30",name:"Café da manhã",tag:"igual ao padrão",items:[["Ovos + pão + pasta de amendoim + café","igual ao padrão"]],m:{kc:"~360",ptn:"22",carb:null,gord:null}},
+      {time:"12h00",name:"Almoço · tanque",tag:"aumenta",items:[["Arroz branco cozido","200g ↑"],["Feijão","100g"],["Frango grelhado","200g ↑"],["Salada + azeite","à vontade"]],m:{kc:"~650",ptn:"52",carb:"80",gord:null}},
+      {time:"15h30",name:"Lanche da tarde",tag:"carga moderada",items:[["Whey protein","1 scoop · 30g"],["Aveia em pó","30g"]],m:{kc:"~250",ptn:"26",carb:null,gord:null}},
+      {time:"19h30",name:"Jantar · leve",tag:"pré-noturno",items:[["Ovos mexidos","3 un"],["Iogurte grego natural","150g"],["Fruta (maçã ou pera)","1 un"]],m:{kc:"~330",ptn:"28",carb:"22",gord:null}},
+      {time:"22h30",name:"Pré-treino · suplemento",tag:"30 min antes",items:[["Pré-treino — máx. 1 scoop","não 2"],["Creatina monohidratada","5g"],["Banana pequena (opcional)","se fraco"]],m:null},
+      {time:"00h30",name:"Pós-treino · noturno",tag:"proteína lenta",star:true,items:[["Whey protein","1 scoop · 30g"],["Iogurte grego natural ★","200g"],["Carboidrato pesado","evitar"]],m:{kc:"~280",ptn:"40",carb:"14",gord:null}, foot:"O iogurte grego no pós-treino age como caseína — proteína de digestão lenta que alimenta o músculo por 6–7h enquanto você dorme."}
+    ]
+  },
+  {
+    id:"off", tab:"Dia OFF", kcal:"1.650",
+    title:["Quinta &amp; ","domingo"], note:"Sem pré nem pós-treino, as calorias caem ~400 kcal naturalmente. <strong>Mantém a proteína alta</strong> — é o que preserva o músculo no descanso.",
+    macros:[["155","g ptn"],["menos","carb"],["~45","g gord"],["5","g creat."],["3L","água"]],
+    meals:[
+      {time:"06h30",name:"Café da manhã",tag:"igual ao padrão",items:[["Ovos + pão + pasta de amendoim + café","igual ao padrão"]],m:{kc:"~360",ptn:"22",carb:null,gord:null}},
+      {time:"12h00",name:"Almoço",tag:"igual ao padrão",items:[["Arroz + feijão + frango + salada","igual ao padrão"]],m:{kc:"~540",ptn:"43",carb:null,gord:null}},
+      {time:"15h30",name:"Lanche · simples",tag:"sem pré-treino",items:[["Whey protein","1 scoop · 30g"],["Maçã","1 un"]],m:{kc:"~200",ptn:"24",carb:null,gord:null}},
+      {time:"20h00",name:"Jantar · reduzido",tag:"leve",items:[["Arroz branco cozido","80g ↓"],["Ovos inteiros","3 un"],["Legumes (brócolis, abobrinha)","200g"]],m:{kc:"~470",ptn:"28",carb:"38",gord:null}}
+    ],
+    foot:"Qui é OFF mas sábado é Lower — durma bem. Dom é OFF após sábado pesado: aproveite o descanso, faz parte do processo."
+  }
+];
+
+const supplements = {
+  id:"supp", tab:"Suplementos", kcal:null,
+  title:["O ","arsenal"], note:"Pouca coisa, bem usada. O resultado vem da comida, do sono e da constância — suplemento é só o ajuste fino.",
+  cards:[
+    {h:"Whey protein", sub:"2 doses nos dias de treino", p:"Dose 1 às <strong>16h30</strong> no pré-treino. Dose 2 no <strong>pós-treino</strong> (até 40 min). Na sexta: dose 1 às 15h30, dose 2 à meia-noite com iogurte grego."},
+    {h:"Creatina", sub:"5g/dia — todos os dias", p:"Dias de treino: junto com o pré-treino suplemento. Dias OFF e sexta: qualquer refeição. <strong>Consistência diária</strong> é o que importa — inclusive fins de semana."},
+    {h:"Pré-treino", sub:"Cuidado na sexta noturna", p:"Dias normais (18h): 1–2 scoops às 17h45. Sexta (23h): <strong>máximo 1 scoop</strong> às 22h30. Dois scoops tarde da noite atrapalham o sono e comprometem a recuperação de sábado.", ember:true},
+    {h:"Iogurte grego", sub:"Substituto natural de caseína", p:"No pós-treino da sexta à meia-noite, <strong>200g</strong> agem como proteína de digestão lenta. Alimenta o músculo durante o sono sem caseína em pó."},
+    {h:"Dosagem de creatina", sub:"Atenção", p:"Creatina de 20g → <strong>5g/dia</strong>. Acima disso é desperdício e sobrecarga renal sem benefício adicional.", warn:true},
+    {h:"GH / peptídeos", sub:"Não necessário agora", p:"Com fundamentos ainda em ajuste, o corpo responde muito melhor a <strong>dieta + sono + consistência</strong>. Riscos reais, custo alto, ganho marginal nesta fase.", warn:true}
+  ]
+};
+
+const rules = {
+  id:"rules", tab:"Regras & Metas", kcal:null,
+  title:["As ","regras"], 
+  list:[
+    "<strong>Proteína é prioridade absoluta.</strong> Nos dias em que a dieta furar, garanta ao menos os 155g de proteína antes de se preocupar com carboidrato ou caloria total.",
+    "<strong>Sono = anabolismo.</strong> 7–8h de sono valem mais do que qualquer suplemento. É durante o sono que o GH natural é secretado em maior quantidade.",
+    "<strong>Não pule o pré-treino alimentar.</strong> A refeição antes do treino é o que dá energia. Sem ela, você puxa menos e compromete o resultado.",
+    "<strong>Sábado após sexta.</strong> Se dormir depois de 1h30, empurre o Lower pro final da tarde. Pernas com sono ruim = risco de lesão e performance baixa.",
+    "<strong>Hidratação.</strong> Mínimo 3L de água por dia. Nos dias de treino, mais 500ml. Creatina puxa água pro músculo — hidratação é crítica.",
+    "<strong>Meça em 6 semanas.</strong> O peso na balança pode estabilizar na recomposição. Confie na fita e no espelho, não só no número.",
+    "<strong>Constância &gt; perfeição.</strong> Um dia ruim não arruína nada. 6 semanas consistentes mudam o corpo."
+  ],
+  subs:[
+    ["Proteínas","Frango · Tilápia · Atum · Ovo · Carne magra"],
+    ["Carbos","Arroz · Batata-doce · Mandioca · Macarrão integral"],
+    ["Legumes","Brócolis · Abobrinha · Chuchu · Cenoura · Espinafre"],
+    ["Gorduras","Azeite · Pasta de amendoim · Abacate (moderado)"]
+  ],
+  exp:[
+    ["4–6 semanas","Definição aparecendo nas laterais"],
+    ["2–4 meses","24% → 18–20% de gordura"],
+    ["2–4 meses","+2–3kg de massa magra"],
+    ["4–6 meses","Reavaliar: hora do bulk limpo"]
+  ]
+};
+
+/* ====================== RENDER ====================== */
+const all = [...protocols, supplements, rules];
+const tablist = document.getElementById("tablist");
+const panels = document.getElementById("panels");
+
+function mealHTML(meal){
+  const items = meal.items.map(([f,q])=>`<li><span class="food">${up(f)}</span><span class="qty">${up(q)}</span></li>`).join("");
+  let macros = "";
+  if(meal.m){
+    const parts = [`<span class="pill kc"><b>${meal.m.kc}</b> kcal</span>`];
+    if(meal.m.ptn) parts.push(`<span class="pill"><b>${meal.m.ptn}g</b> ptn</span>`);
+    if(meal.m.carb) parts.push(`<span class="pill"><b>${meal.m.carb}g</b> carb</span>`);
+    if(meal.m.gord) parts.push(`<span class="pill"><b>${meal.m.gord}g</b> gord</span>`);
+    macros = `<div class="macros">${parts.join("")}</div>`;
+  }
+  const foot = meal.foot ? `<p class="pnote" style="margin-top:14px">${meal.foot}</p>` : "";
+  return `<div class="meal">
+    <div class="meal__time">${meal.time}</div>
+    <div class="card${meal.star?' star':''}">
+      <div class="card__head"><h4>${meal.name}</h4><span class="tag${meal.star?' ember':''}">${meal.tag}</span></div>
+      <ul class="items">${items}</ul>
+      ${macros}${foot}
+    </div>
+  </div>`;
+}
+
+function protocolPanel(p){
+  const macroband = `<div class="macroband">${p.macros.map(([n,l])=>`<div class="mchip"><b>${n}</b><span>${l}</span></div>`).join("")}</div>`;
+  const meals = `<div class="timeline">${p.meals.map(mealHTML).join("")}</div>`;
+  const foot = p.foot ? `<p class="pnote" style="margin-top:8px">${p.foot}</p>` : "";
+  return `<div class="phead">
+      <h2>${p.title[0]}<em>${p.title[1]}</em></h2>
+      <div class="kcal-big">${p.kcal}<small>kcal / dia</small></div>
+    </div>
+    <p class="pnote">${p.note}</p>
+    ${macroband}${meals}${foot}`;
+}
+
+function suppPanel(s){
+  const cards = s.cards.map(c=>`<div class="info${c.warn?' warn':''}${c.ember?' warn':''}"><h3>${c.h}</h3><div class="sub">${c.sub}</div><p>${c.p}</p></div>`).join("");
+  return `<div class="phead"><h2>${s.title[0]}<em>${s.title[1]}</em></h2></div>
+    <p class="pnote">${s.note}</p>
+    <div class="grid">${cards}</div>`;
+}
+
+function rulesPanel(r){
+  const list = r.list.map(t=>`<div class="rule"><p>${t}</p></div>`).join("");
+  const subs = r.subs.map(([h,v])=>`<tr><th>${h}</th><td>${v}</td></tr>`).join("");
+  const exp = r.exp.map(([w,t])=>`<div class="row"><span class="when">${w}</span><span class="what">${t}</span></div>`).join("");
+  return `<div class="phead"><h2>${r.title[0]}<em>${r.title[1]}</em></h2></div>
+    <div class="rules">${list}</div>
+    <h3 class="section-title">Substituições <em>livres</em></h3>
+    <table class="subs"><tbody>${subs}</tbody></table>
+    <h3 class="section-title">Expectativas <em>(ecto)</em></h3>
+    <div class="exp">${exp}</div>`;
+}
+
+all.forEach((item,i)=>{
+  const tab = document.createElement("button");
+  tab.className = "tab";
+  tab.id = "tab-"+item.id;
+  tab.setAttribute("role","tab");
+  tab.setAttribute("aria-controls","panel-"+item.id);
+  tab.setAttribute("aria-selected", i===0 ? "true":"false");
+  tab.tabIndex = i===0 ? 0 : -1;
+  tab.innerHTML = item.tab + (item.kcal ? `<span class="kc">${item.kcal}</span>`:"");
+  tablist.appendChild(tab);
+
+  const panel = document.createElement("section");
+  panel.className = "panel";
+  panel.id = "panel-"+item.id;
+  panel.setAttribute("role","tabpanel");
+  panel.setAttribute("aria-labelledby","tab-"+item.id);
+  if(i!==0) panel.hidden = true;
+  panel.innerHTML = protocols.includes(item) ? protocolPanel(item)
+                  : item===supplements ? suppPanel(item)
+                  : rulesPanel(item);
+  panels.appendChild(panel);
+});
+
+const tabs = [...tablist.querySelectorAll(".tab")];
+function select(idx){
+  tabs.forEach((t,i)=>{
+    const on = i===idx;
+    t.setAttribute("aria-selected", on?"true":"false");
+    t.tabIndex = on?0:-1;
+    document.getElementById("panel-"+all[i].id).hidden = !on;
+  });
+}
+tablist.addEventListener("click", e=>{
+  const t = e.target.closest(".tab"); if(!t) return;
+  select(tabs.indexOf(t));
+});
+tablist.addEventListener("keydown", e=>{
+  const i = tabs.indexOf(document.activeElement); if(i<0) return;
+  let n=null;
+  if(e.key==="ArrowRight") n=(i+1)%tabs.length;
+  if(e.key==="ArrowLeft") n=(i-1+tabs.length)%tabs.length;
+  if(n!==null){e.preventDefault();tabs[n].focus();select(n);}
+});
+</script>
+</body>
+</html>
